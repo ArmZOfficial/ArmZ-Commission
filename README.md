@@ -22,7 +22,7 @@
 - **Motion** (`motion/react`) — รองรับ `prefers-reduced-motion` ทุกจุด
 - **WebGL Flow Shader** (circular fade, aspect-correct, sync ธีม) / **Lenis** smooth scroll
 - **BorderGlow** (React Bits) — ขอบเรืองแสงไล่ตามเมาส์ (About + Contact CTA)
-- **Upstash Redis** (`@upstash/redis`) — REST API, รันบน **Edge Runtime** ได้ ไม่มี Node-only API
+- **Upstash Redis** (`@upstash/redis`) — REST API, ใช้ได้ทั้ง Node.js และ Edge (ปัจจุบันรันบน **Node.js runtime** ตามคำแนะนำ Next.js 16)
 - SEO: metadata, Open Graph, Twitter cards, `sitemap.xml`, `robots.txt`, OG image อัตโนมัติ
 
 > **หมายเหตุ React Bits**: โปรเจกต์นี้มี `components.json` พร้อม registries `@reactbits-pro` / `@reactbits-starter`
@@ -82,7 +82,7 @@ npm run dev
    - `ADMIN_PASSWORD`, `AUTH_SECRET`
    - `NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app`
    - `REACTBITS_LICENSE_KEY` (ถ้ามี)
-3. Deploy — โปรเจกต์ใช้ **Edge Runtime** บน API routes และไม่มี Node-only API
+3. Deploy — API routes ทั้งหมดใช้ **Node.js runtime** (Next.js 16 deprecate Edge runtime แล้ว) — ทุก route ใช้ Web Crypto / fetch / REST client จึงรันได้ทั้ง 2 แบบ
 
 > **Auto-seed:** ตอนเชื่อม Upstash ครั้งแรก (Redis ว่าง) ระบบจะเขียนเนื้อหา default ทั้งหมดลง Redis อัตโนมัติในครั้งแรกที่เปิดเว็บ — เข้า `/admin` ได้เลย ไม่ต้องตั้งข้อมูลเองก่อน แล้วค่อยเปลี่ยนเนื้อหาตัวอย่าง (รูปโปรไฟล์, ผลงาน, ราคา) เป็นของจริง
 
@@ -100,7 +100,7 @@ app/
 │  ├─ page.tsx        # guarded ด้วย session
 │  └─ login/
 ├─ api/
-│  ├─ content/        # GET/PUT/DELETE เนื้อหา (session-guarded, edge)
+│  ├─ content/        # GET/PUT/DELETE เนื้อหา (session-guarded, nodejs)
 │  ├─ auth/           # login / check / logout
 │  ├─ youtube/        # oEmbed proxy ดึง title + thumbnail
 │  ├─ upload/         # POST รูป (session-guarded) → เก็บ Redis key img:*

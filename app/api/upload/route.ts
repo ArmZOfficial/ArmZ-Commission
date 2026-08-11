@@ -3,7 +3,7 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { setJson } from "@/lib/store";
 import { uid } from "@/lib/utils";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 /** ขีดจำกัดขนาดรูปหลังถอด base64 (ฝั่ง client บีบอัดให้แล้ว — กัน abuse) */
 const MAX_DECODED_BYTES = 2_000_000; // ~2MB

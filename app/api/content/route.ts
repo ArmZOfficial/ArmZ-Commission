@@ -4,7 +4,7 @@ import { del, setJson } from "@/lib/store";
 import { CONTENT_KEYS, type ContentKey } from "@/lib/types";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 async function isAuthed(req: NextRequest): Promise<boolean> {
   return verifySessionToken(req.cookies.get(SESSION_COOKIE)?.value);

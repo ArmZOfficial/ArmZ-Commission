@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchYouTubeMeta, thumbnailFromUrl } from "@/lib/youtube";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 /** GET /api/youtube?url=… → { title, thumbnailUrl, authorName } ผ่าน oEmbed */
 export async function GET(req: NextRequest) {

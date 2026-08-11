@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getJson } from "@/lib/store";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 /** GET /api/image/<id> — เสิร์ฟรูปที่อัปโหลดไว้ (cache ยาว เพราะ id ไม่ซ้ำเมื่ออัปโหลดใหม่) */
 export async function GET(
