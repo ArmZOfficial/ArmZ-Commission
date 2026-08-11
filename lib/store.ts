@@ -79,7 +79,14 @@ export async function getRaw(key: string): Promise<string | null> {
   const r = redis();
   if (r) {
     try {
-      return await r.get<string>(key);
+      const v = await r.get<unknown>(key);
+      if (v === null || v === undefined) return null;
+      // สำคัญ: @upstash/redis auto-deserialize ค่า JSON ที่อ่านกลับมา
+      // (ถ้าเก็บ string ที่เป็น JSON ไว้ จะได้ object/array คืนมา ไม่ใช่ string)
+      // ถ้าส่ง object นั้นต่อไป JSON.parse ใน getJson จะ throw → ข้อมูลที่บันทึกถูกมองว่า "ไม่มี"
+      // → หน้าเว็บแสดงค่า default เสมอ (บั๊กที่ทำให้ "แก้แล้วไม่ขึ้น")
+      if (typeof v === "string") return v;
+      return JSON.stringify(v);
     } catch (e) {
       console.error(`[content-store] Redis GET ${key} ล้มเหลว:`, e);
       return null;
