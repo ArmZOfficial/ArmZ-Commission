@@ -598,6 +598,9 @@ export function ContactForm({ value, onChange }: FormProps<ContactContent>) {
         <Field label="CTA ด้านล่าง — ข้อความปุ่ม">
           <TextInput value={value.ctaButtonLabel ?? ""} onChange={(v) => set({ ctaButtonLabel: v })} />
         </Field>
+        <Field label="CTA ด้านล่าง — ลิงก์ปุ่ม">
+          <TextInput value={value.ctaHref ?? ""} onChange={(v) => set({ ctaHref: v })} />
+        </Field>
       </div>
     </div>
   );

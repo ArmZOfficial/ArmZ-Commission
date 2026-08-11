@@ -132,7 +132,8 @@ export interface ContactContent {
   discord: { label: string; username: string; copyLabel: string; copiedLabel: string };
   ctaLabel: string;
   ctaSub: string;
-  ctaButtonLabel: string; // ปุ่ม "ดูแพ็กเกจราคา" ใน CTA
+  ctaButtonLabel: string; // ข้อความปุ่มใน CTA เช่น "ดูแพ็กเกจราคา" / "เช็คคิว"
+  ctaHref: string; // ลิงก์ของปุ่ม CTA (เช่น ลิงก์เช็คคิว Notion)
 }
 
 /** หัวข้อหน้า Portfolio (เก็บแยกจาก list ผลงาน) */

@@ -30,7 +30,7 @@ export function defaultHome(): HomeContent {
     subheadline:
       "รับ Mixing & Mastering ทุกแนวเพลง — K-Pop, J-Pop, Hip-Hop, Rock ดูแลโดยวิศวกรเสียงที่เข้าใจศิลปิน เน้นคุณภาพระดับสตูดิโอ ตรงเวลา และใส่ใจทุกรายละเอียดของเสียง",
     ctaLabel: "เช็คคิว",
-    ctaHref: "/contact",
+    ctaHref: "https://sudden-infinity-c34.notion.site/3d7a957f9bb24abfb238d0dbb52b4024?v=85aa07c0f1c94b5abf0187b445c3935c",
     secondaryLabel: "ดูผลงาน",
     secondaryHref: "/portfolio",
     packages: [
@@ -261,7 +261,7 @@ export function defaultPricing(): PricingContent {
       { title: "งานเชิงพาณิชย์ (Commercial)", detail: "ราคา x2 — เพลงที่ใช้หารายได้/ออกเชิงพาณิชย์" },
     ],
     ctaLabel: "เช็คคิว",
-    ctaHref: "/contact",
+    ctaHref: "https://sudden-infinity-c34.notion.site/3d7a957f9bb24abfb238d0dbb52b4024?v=85aa07c0f1c94b5abf0187b445c3935c",
     popularLabel: "ยอดนิยม",
     priceUnit: "บาท",
     footerNote:
@@ -285,6 +285,7 @@ export function defaultContact(): ContactContent {
     ctaLabel: "เปิดรับงาน Mixing & Mastering",
     ctaSub: "เช็คคิว หรือส่งไฟล์เดโมได้เลย — ตอบกลับภายใน 24 ชม.",
     ctaButtonLabel: "ดูแพ็กเกจราคา",
+    ctaHref: "https://sudden-infinity-c34.notion.site/3d7a957f9bb24abfb238d0dbb52b4024?v=85aa07c0f1c94b5abf0187b445c3935c",
   };
 }
 
