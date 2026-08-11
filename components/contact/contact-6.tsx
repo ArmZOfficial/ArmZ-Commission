@@ -176,6 +176,8 @@ export function Contact6({ content }: { content: ContactContent }) {
                 <p className="mt-3 text-sm text-white/60">{content.ctaSub}</p>
                 <Link
                   href={content.ctaHref || "/pricing"}
+                  target={(content.ctaHref || "/pricing").startsWith("http") ? "_blank" : undefined}
+                  rel={(content.ctaHref || "/pricing").startsWith("http") ? "noopener noreferrer" : undefined}
                   className="glow-accent group mt-7 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-[#0a0a0a] transition-all hover:brightness-110 active:scale-[0.98]"
                 >
                 {content.ctaButtonLabel || "ดูแพ็กเกจราคา"}

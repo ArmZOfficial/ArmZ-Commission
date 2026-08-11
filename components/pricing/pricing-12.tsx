@@ -81,6 +81,8 @@ export function Pricing12({ content }: { content: PricingContent }) {
                 <div className="mt-auto pt-8">
                   <Link
                     href={content.ctaHref}
+                    target={content.ctaHref.startsWith("http") ? "_blank" : undefined}
+                    rel={content.ctaHref.startsWith("http") ? "noopener noreferrer" : undefined}
                     className={cn(
                       "group flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold transition-all active:scale-[0.98]",
                       p.popular
@@ -118,6 +120,8 @@ export function Pricing12({ content }: { content: PricingContent }) {
             </div>
             <Link
               href={content.ctaHref}
+              target={content.ctaHref.startsWith("http") ? "_blank" : undefined}
+              rel={content.ctaHref.startsWith("http") ? "noopener noreferrer" : undefined}
               className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm font-bold text-background transition-all hover:opacity-90 active:scale-[0.98]"
             >
               {content.ctaLabel}

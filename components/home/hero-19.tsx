@@ -118,6 +118,8 @@ export function Hero19({ content }: { content: HomeContent }) {
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
               <Link
                 href={content.ctaHref}
+                target={content.ctaHref.startsWith("http") ? "_blank" : undefined}
+                rel={content.ctaHref.startsWith("http") ? "noopener noreferrer" : undefined}
                 className="glow-accent group inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-semibold text-accent-foreground transition-all hover:brightness-110 active:scale-[0.98]"
               >
                 {content.ctaLabel}
