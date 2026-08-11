@@ -627,7 +627,7 @@ export function GlobalForm({
         </p>
         <ArrayEditor
           items={nav}
-          onChange={onNavChange}
+          onChange={(items) => onNavChange(items as NavItem[])}
           makeNew={() => ({ id: `nav-${Date.now()}`, label: "", href: "/", image: "" })}
           addLabel="เพิ่มเมนู"
           renderItem={(item, update, remove) => {

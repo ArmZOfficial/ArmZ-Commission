@@ -13,16 +13,18 @@ export async function GET(
   if (!record) {
     return new NextResponse("Not found", { status: 404 });
   }
-  let bytes: Uint8Array;
   try {
-    bytes = Uint8Array.from(atob(record.base64), (c) => c.charCodeAt(0));
+    // สร้าง Uint8Array ใหม่ที่ผูกกับ ArrayBuffer (type ตรงกับ BodyInit ของ NextResponse)
+    const bin = atob(record.base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new NextResponse(bytes, {
+      headers: {
+        "Content-Type": record.mime,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
   } catch {
     return new NextResponse("Corrupt image", { status: 500 });
   }
-  return new NextResponse(bytes, {
-    headers: {
-      "Content-Type": record.mime,
-      "Cache-Control": "public, max-age=31536000, immutable",
-    },
-  });
 }
