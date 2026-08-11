@@ -11,7 +11,11 @@ function redis(): Redis | null {
   // รองรับทั้ง Upstash Redis และ Vercel KV (เป็น Upstash เหมือนกัน)
   const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  client = url && token ? new Redis({ url, token }) : null;
+  client = url && token ? new Redis({ 
+    url, 
+    token,
+    fetch: (input, init) => fetch(input, { ...init, cache: "no-store" })
+  }) : null;
   if (!client) {
     console.warn(
       "[content-store] ไม่พบ UPSTASH_REDIS_REST_URL/TOKEN (หรือ KV_REST_API_URL/TOKEN) — ใช้ in-memory fallback " +
