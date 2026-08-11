@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loadAllContent } from "@/lib/content";
-import { del, setJson } from "@/lib/store";
+import { del, isRedisConnected, setJson } from "@/lib/store";
 import { CONTENT_KEYS, type ContentKey } from "@/lib/types";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 
@@ -34,7 +34,25 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Invalid key" }, { status: 400 });
   }
   const key = body.key as ContentKey;
-  await setJson(key, body.value);
+
+  // production ที่ยังไม่เชื่อม Upstash → บันทึกลง memory ของ instance เดียว = หน้าเว็บไม่เห็นผล
+  if (process.env.NODE_ENV === "production" && !isRedisConnected()) {
+    return NextResponse.json(
+      {
+        error:
+          "ยังไม่ได้เชื่อม Upstash Redis — ไปที่ Vercel → Settings → Storage → เชื่อม Upstash Redis (หรือตั้ง UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN) ก่อน แล้วค่อยบันทึก",
+      },
+      { status: 500 }
+    );
+  }
+
+  const ok = await setJson(key, body.value);
+  if (!ok) {
+    return NextResponse.json(
+      { error: "บันทึกไม่สำเร็จ — เช็คการเชื่อมต่อ Upstash Redis (URL/Token ถูกต้องไหม) แล้วลองอีกครั้ง" },
+      { status: 500 }
+    );
+  }
   return NextResponse.json({ ok: true, key });
 }
 

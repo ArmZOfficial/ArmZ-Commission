@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
-import { setJson } from "@/lib/store";
+import { isRedisConnected, setJson } from "@/lib/store";
 import { uid } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -43,7 +43,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "รูปใหญ่เกินไป (สูงสุด ~2MB)" }, { status: 413 });
   }
 
+  if (process.env.NODE_ENV === "production" && !isRedisConnected()) {
+    return NextResponse.json(
+      { error: "ยังไม่ได้เชื่อม Upstash Redis — ตั้งค่าใน Vercel (Settings → Storage) ก่อนอัปโหลดรูป" },
+      { status: 500 }
+    );
+  }
+
   const id = uid("img");
-  await setJson(`img:${id}`, { mime, base64 });
+  const ok = await setJson(`img:${id}`, { mime, base64 });
+  if (!ok) {
+    return NextResponse.json({ error: "อัปโหลดไม่สำเร็จ — เช็คการเชื่อมต่อ Upstash Redis" }, { status: 500 });
+  }
   return NextResponse.json({ url: `/api/image/${id}` });
 }

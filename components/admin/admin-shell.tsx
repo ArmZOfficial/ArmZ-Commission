@@ -105,12 +105,15 @@ export function AdminShell() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key, value: draft[key] }),
         });
-        if (!res.ok) throw new Error(`save ${key} failed`);
+        if (!res.ok) {
+          const err = (await res.json().catch(() => null)) as { error?: string } | null;
+          throw new Error(err?.error ?? `save ${key} failed`);
+        }
       }
       setDirty(new Set());
       setStatus("บันทึกแล้ว ✓ หน้าเว็บอัปเดตทันที");
-    } catch {
-      setStatus("บันทึกไม่สำเร็จ — ลองอีกครั้ง");
+    } catch (e) {
+      setStatus(e instanceof Error && e.message ? e.message : "บันทึกไม่สำเร็จ — ลองอีกครั้ง");
     } finally {
       setSaving(false);
       setTimeout(() => setStatus(""), 3500);

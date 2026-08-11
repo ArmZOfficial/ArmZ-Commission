@@ -37,18 +37,25 @@ export async function getRaw(key: string): Promise<string | null> {
   return memory.get(key) ?? null;
 }
 
-export async function setRaw(key: string, value: string): Promise<void> {
+/** บันทึกสำเร็จจริงไหม (false = Redis เขียนไม่ได้) — ใช้กับ API ที่ต้องรู้ผลเพื่อแจ้งผู้ใช้ */
+export async function setRaw(key: string, value: string): Promise<boolean> {
   const r = redis();
   if (r) {
     try {
       await r.set(key, value);
-      return;
+      return true;
     } catch (e) {
       console.error(`[content-store] Redis SET ${key} ล้มเหลว:`, e);
-      return;
+      return false;
     }
   }
   memory.set(key, value);
+  return true;
+}
+
+/** ตรวจว่ามี Redis จริง (ไม่ใช่ in-memory fallback) — production ที่ไม่เชื่อม Upstash จะใช้กันแก้ไม่เห็นผล */
+export function isRedisConnected(): boolean {
+  return redis() !== null;
 }
 
 export async function del(key: string): Promise<void> {
@@ -75,6 +82,6 @@ export async function getJson<T>(key: string): Promise<T | null> {
   }
 }
 
-export async function setJson(key: string, value: unknown): Promise<void> {
-  await setRaw(key, JSON.stringify(value));
+export async function setJson(key: string, value: unknown): Promise<boolean> {
+  return setRaw(key, JSON.stringify(value));
 }
