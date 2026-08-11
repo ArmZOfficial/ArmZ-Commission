@@ -20,7 +20,7 @@ export function Navigation8({ items }: { items: NavItem[] }) {
   return (
     <nav
       aria-label="เมนูหลัก"
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-2 pt-3"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-2 pt-6"
     >
       <div className="pointer-events-auto relative flex max-w-full items-center gap-0 overflow-x-auto rounded-full border border-frame-border bg-background/75 p-1.5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.45)] backdrop-blur-xl will-change-transform sm:gap-1">
         {items.map((item) => {
