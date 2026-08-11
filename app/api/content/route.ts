@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { loadAllContent } from "@/lib/content";
 import { del, isRedisConnected, setJson } from "@/lib/store";
 import { CONTENT_KEYS, type ContentKey } from "@/lib/types";
@@ -53,6 +54,10 @@ export async function PUT(req: NextRequest) {
       { status: 500 }
     );
   }
+  
+  // รีเฟรชแคชหน้าเว็บเพื่อให้แสดงผลทันทีบน Vercel
+  revalidatePath("/", "layout");
+  
   return NextResponse.json({ ok: true, key });
 }
 
@@ -66,5 +71,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Invalid key" }, { status: 400 });
   }
   await del(key);
+  
+  // รีเฟรชแคชหน้าเว็บเพื่อให้แสดงผลทันทีบน Vercel
+  revalidatePath("/", "layout");
+  
   return NextResponse.json({ ok: true, key });
 }
