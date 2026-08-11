@@ -66,11 +66,13 @@ npm run dev
 3. แก้ไขฟอร์มด้านซ้าย → **พรีวิวด้านขวาอัปเดตทันที** (optimistic) — สลับ breakpoint (desktop/tablet/mobile) และสลับธีม (dark/light) ได้จากแถบพรีวิว
 4. **รูปทุกจุดอัปโหลดได้**: ช่องรูปโปรไฟล์ / รูป hover (About), รูปย่อผลงาน (Portfolio), รูปพรีวิว nav และ OG Image (Global) — กด **“อัปโหลด”** เลือกไฟล์ ระบบบีบอัดบนเครื่อง (WebP, resize อัตโนมัติ) แล้วเก็บใน Redis ผ่าน `/api/upload` (แสดงผลผ่าน `/api/image/<id>`) — หรือวาง URL ได้เหมือนเดิม
 5. **Portfolio**: กด “เพิ่มผลงาน” → วางลิงก์ YouTube → ระบบ **ดึงชื่อ + รูปย่ออัตโนมัติ** (ผ่าน `/api/youtube` oEmbed) → ลากจัดเรียง / ปักหมุด ⭐ / ลบ (พร้อม confirm)
-6. กด **“บันทึก”** → เขียนลง Redis → หน้าเว็บอัปเดตทันที (ทุกหน้าเป็น `force-dynamic`)
+6. กด **“บันทึก”** → เขียนลง Redis → หน้าเว็บอัปเดตทันที (ทุกหน้าเป็น `force-dynamic` + `middleware.ts` บังคับ `Cache-Control: no-store` กัน CDN/เบราว์เซอร์ cache)
 
 > **หมายเหตุ:** รูปที่อัปโหลดจะเก็บเป็น key `img:*` ใน Redis เดียวกันกับเนื้อหา — ฟรี 1MB/key ก็เพียงพอเพราะบีบอัดให้แล้ว (รูป OG ที่อัปโหลดใช้พรีวิวในแอดมินได้ แต่ social crawler อ่าน data-URI ไม่ได้ แนะนำให้ใช้ URL จริงถ้าอยากให้การ์ดโซเชียลสมบูรณ์)
 
 ข้อมูลถูกเก็บเป็น JSON blob ตาม key: `site:home`, `site:about`, `site:portfolio`, `site:pricing`, `site:contact`, `site:nav`, `site:seo`
+
+> **อัปเดตทันทีบน Vercel:** แก้แล้วกดบันทึก → เห็นผลบนเว็บทันทีโดยไม่ต้อง redeploy — **เงื่อนไขเดียวคือต้องเชื่อม Upstash Redis** (ตั้ง `UPSTASH_REDIS_REST_URL/TOKEN` หรือเชื่อมผ่าน Vercel Storage/Marketplace) ถ้าไม่ได้เชื่อม ระบบจะใช้ in-memory fallback ที่ **แต่ละ serverless instance แยกกัน** → บันทึกแล้วอาจไม่เห็นผลทันที (มี warning ใน log) — หลังเชื่อมแล้วสามารถรีเซ็ตเนื้อหาได้จากปุ่ม “รีเซ็ต” ใน admin
 
 ---
 

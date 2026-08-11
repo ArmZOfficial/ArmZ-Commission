@@ -12,9 +12,11 @@ function redis(): Redis | null {
   const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
   client = url && token ? new Redis({ url, token }) : null;
-  if (!client && process.env.NODE_ENV !== "production") {
+  if (!client) {
     console.warn(
-      "[content-store] UPSTASH_REDIS_REST_URL/TOKEN ไม่ได้ตั้งค่า — ใช้ in-memory fallback (ข้อมูลจะหายเมื่อ restart)"
+      "[content-store] ไม่พบ UPSTASH_REDIS_REST_URL/TOKEN (หรือ KV_REST_API_URL/TOKEN) — ใช้ in-memory fallback " +
+        "(production: แต่ละ serverless instance มีหน่วยความจำแยกกัน → Admin บันทึกแล้วหน้าเว็บอาจไม่เห็นผลทันที " +
+        "ให้เชื่อม Upstash Redis ในการตั้งค่า Vercel)"
     );
   }
   return client;
