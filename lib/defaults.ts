@@ -260,7 +260,7 @@ export function defaultPricing(): PricingContent {
       { title: "งานเร่ง (Rush)", detail: "ราคา x2 — จัดคิวให้ภายใน 48 ชม." },
       { title: "งานเชิงพาณิชย์ (Commercial)", detail: "ราคา x2 — เพลงที่ใช้หารายได้/ออกเชิงพาณิชย์" },
     ],
-    ctaLabel: "เช็คคิว",
+    ctaLabel: "หากสนใจติดต่อได้ที่",
     ctaHref: "https://sudden-infinity-c34.notion.site/3d7a957f9bb24abfb238d0dbb52b4024?v=85aa07c0f1c94b5abf0187b445c3935c",
     popularLabel: "ยอดนิยม",
     priceUnit: "บาท",
