@@ -106,9 +106,9 @@
   }
 }
 
-/* ── Site Frame: content padding กัน rails + bottom nav ── */
+/* ── Site Frame: content padding กัน rails + top nav ── */
 .site-pad {
-  padding: calc(var(--frame-w) + 18px) calc(var(--frame-w) + 12px) calc(var(--frame-w) + 130px);
+  padding: calc(var(--frame-w) + 32px) calc(var(--frame-w) + 12px) calc(var(--frame-w) + 40px);
 }
 
 /* ── View transition reveal ตอนสลับธีม (guard ด้วย prefers-reduced-motion) ── */
