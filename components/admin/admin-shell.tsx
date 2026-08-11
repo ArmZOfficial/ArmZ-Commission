@@ -9,6 +9,7 @@ import {
   Monitor,
   Moon,
   RefreshCw,
+  RotateCcw,
   Save,
   Settings,
   Smartphone,
@@ -74,46 +75,64 @@ export function AdminShell() {
     production: boolean;
   } | null>(null);
 
+  // ดึงข้อมูลจริงจากเซิร์ฟเวอร์ (บังคับไม่ cache) → คืน content + อัปเดตสถานะการเชื่อมต่อ
+  const fetchContent = async (): Promise<Record<ContentKey, unknown>> => {
+    const res = await fetch("/api/content", { cache: "no-store" });
+    if (res.status === 401) {
+      router.replace("/admin/login");
+      throw new Error("unauthorized");
+    }
+    const payload = (await res.json()) as
+      | { content?: Record<ContentKey, unknown>; redisConnected?: boolean; production?: boolean }
+      | Record<ContentKey, unknown>;
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "content" in payload &&
+      (payload as { content?: unknown }).content
+    ) {
+      const p = payload as {
+        content: Record<ContentKey, unknown>;
+        redisConnected?: boolean;
+        production?: boolean;
+      };
+      setStoreStatus({ redisConnected: !!p.redisConnected, production: !!p.production });
+      return p.content;
+    }
+    // backward compat: response เดิมที่คืน content ตรงๆ
+    setStoreStatus(null);
+    return payload as Record<ContentKey, unknown>;
+  };
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/content", { cache: "no-store" });
-        if (res.status === 401) {
-          router.replace("/admin/login");
-          return;
-        }
-        const payload = (await res.json()) as
-          | { content?: Record<ContentKey, unknown>; redisConnected?: boolean; production?: boolean }
-          | Record<ContentKey, unknown>;
-        if (!cancelled) {
-          if (
-            payload &&
-            typeof payload === "object" &&
-            "content" in payload &&
-            (payload as { content?: unknown }).content
-          ) {
-            const p = payload as {
-              content: Record<ContentKey, unknown>;
-              redisConnected?: boolean;
-              production?: boolean;
-            };
-            setDraft(p.content);
-            setStoreStatus({ redisConnected: !!p.redisConnected, production: !!p.production });
-          } else {
-            // backward compat: response เดิมที่คืน content ตรงๆ
-            setDraft(payload as Record<ContentKey, unknown>);
-            setStoreStatus(null);
-          }
-        }
+        const content = await fetchContent();
+        if (!cancelled) setDraft(content);
       } catch {
-        setStatus("โหลดข้อมูลไม่สำเร็จ");
+        if (!cancelled) setStatus("โหลดข้อมูลไม่สำเร็จ");
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [router]);
+
+  // ปุ่ม "โหลดใหม่" — ดึงค่าที่เก็บจริงในเซิร์ฟเวอร์มาแสดง (ใช้เช็คว่าบันทึกแล้วติดจริงไหม)
+  const reload = async () => {
+    if (dirty.size > 0 && !window.confirm("โหลดใหม่จะทิ้งการแก้ไขที่ยังไม่บันทึก — ดำเนินต่อ?")) return;
+    setStatus("กำลังโหลดข้อมูลจากเซิร์ฟเวอร์…");
+    try {
+      const content = await fetchContent();
+      setDraft(content);
+      setDirty(new Set());
+      setStatus("โหลดข้อมูลล่าสุดจากเซิร์ฟเวอร์แล้ว");
+    } catch {
+      setStatus("โหลดข้อมูลไม่สำเร็จ");
+    }
+    setTimeout(() => setStatus(""), 2500);
+  };
 
   const patch = (key: ContentKey, value: unknown) => {
     setDraft((d) => (d ? { ...d, [key]: value } : d));
@@ -300,7 +319,7 @@ export function AdminShell() {
           )}
           {storeStatus?.production && storeStatus.redisConnected && (
             <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-              ✓ เชื่อมต่อ Upstash Redis แล้ว — บันทึกแล้วหน้าเว็บอัปเดตทันที
+              ✓ เชื่อมต่อ Upstash Redis แล้ว — ข้อมูลทั้งหมดอ่าน/เขียนจาก Redis โดยตรง บันทึกแล้วหน้าเว็บอัปเดตทันที
             </div>
           )}
           {storeStatus && !storeStatus.production && (
@@ -329,6 +348,14 @@ export function AdminShell() {
                   รีเซ็ต
                 </button>
               )}
+              <button
+                type="button"
+                onClick={reload}
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white/60 transition-colors hover:bg-white/5"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                โหลดใหม่
+              </button>
               <button
                 type="button"
                 onClick={() => setShowPreview((v) => !v)}
