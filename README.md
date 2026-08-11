@@ -52,7 +52,7 @@ npm run dev
 | ตัวแปร | จำเป็น? | รายละเอียด |
 |---|---|---|
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | ต้องตั้งเพื่อใช้งานจริง | ถ้าไม่ตั้ง → ใช้ in-memory fallback (ข้อมูลหายเมื่อ restart เหมาะกับ dev) |
-| `ADMIN_PASSWORD` | ต้องตั้งใน production | รหัสผ่านหน้า `/admin` (ถ้าไม่ตั้ง ใน dev จะใช้ `admin123`) |
+| `ADMIN_PASSWORD` | แนะนำ (ตั้งแล้วชนะรหัส default) | รหัสผ่านหน้า `/admin` — **ถ้าไม่ตั้ง จะใช้ default `armzlnwza007`** (ทุก environment, มี warning ใน production) |
 | `AUTH_SECRET` | แนะนำ | ใช้เซ็น session cookie |
 | `NEXT_PUBLIC_SITE_URL` | แนะนำ | URL เว็บจริง (ใช้ใน sitemap / OG) |
 | `REACTBITS_LICENSE_KEY` | เฉพาะถ้าจะติดตั้งบล็อกจาก React Bits | สำหรับ `shadcn` CLI |

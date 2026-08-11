@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, Check, Copy, Radio } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { BorderGlow } from "@/components/border-glow";
 import { Magnetic } from "@/components/magnetic";
 import { Reveal } from "@/components/reveal";
@@ -51,11 +51,9 @@ function SocialButton({ social }: { social: SocialLink }) {
   );
 }
 
-/** Profile 5 (adapted) — spotlight creator card + stats + tabbed link rows + social actions */
+/** Profile 5 (adapted) — creator card + stats + tabbed link rows + social actions */
 export function Profile5({ content }: { content: AboutContent }) {
   const reduce = useReducedMotion();
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
   const [tab, setTab] = useState(content.tabs[0]?.id ?? "");
 
   const activeTab = content.tabs.find((t) => t.id === tab) ?? content.tabs[0];
@@ -85,28 +83,8 @@ export function Profile5({ content }: { content: AboutContent }) {
             glowRadius={34}
             colors={["#ffffff", "#e5e5e5", "#a3a3a3"]}
           >
-          <div
-            ref={panelRef}
-            onPointerMove={(e) => {
-              if (!panelRef.current || reduce) return;
-              const rect = panelRef.current.getBoundingClientRect();
-              setSpot({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-            }}
-            onPointerLeave={() => setSpot(null)}
-            className="relative p-6 lg:p-10"
-          >
-            {/* spotlight ตามเมาส์ */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background: spot
-                  ? `radial-gradient(520px circle at ${spot.x}px ${spot.y}px, color-mix(in oklab, var(--accent) 13%, transparent), transparent 62%)`
-                  : "transparent",
-              }}
-            />
-
-            <div className="relative grid gap-10 lg:grid-cols-[minmax(0,360px)_1fr]">
+          <div className="relative p-6 lg:p-10">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,360px)_1fr]">
               {/* portrait */}
               <div className="mx-auto w-full max-w-[360px]">
                 <PortraitMorph src={content.portrait} hoverSrc={content.portraitHover} alt={`รูปของ ${content.name}`} />

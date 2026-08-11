@@ -11,9 +11,13 @@ function secret(): string {
 export function adminPassword(): string {
   const pass = process.env.ADMIN_PASSWORD;
   if (pass) return pass;
-  // ถ้าไม่ตั้ง ADMIN_PASSWORD: อนุญาตเฉพาะ dev ด้วยรหัส default
-  if (process.env.NODE_ENV !== "production") return "armzlnwza007";
-  return "";
+  // รหัส default (ชั่วคราว) — ใช้ได้ทุก environment จนกว่าจะตั้ง ADMIN_PASSWORD
+  if (process.env.NODE_ENV === "production") {
+    console.warn(
+      "[auth] ไม่ได้ตั้ง ADMIN_PASSWORD — กำลังใช้รหัส default \"armzlnwza007\" (ควรตั้ง env ใน production)"
+    );
+  }
+  return "armzlnwza007";
 }
 
 async function hmac(data: string): Promise<string> {
