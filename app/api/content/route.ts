@@ -6,6 +6,9 @@ import { CONTENT_KEYS, type ContentKey } from "@/lib/types";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 async function isAuthed(req: NextRequest): Promise<boolean> {
   return verifySessionToken(req.cookies.get(SESSION_COOKIE)?.value);

@@ -7,6 +7,10 @@ import { Navigation8 } from "@/components/nav/navigation-8";
 import { AccentInjector } from "@/components/accent-injector";
 import { loadNav, loadSeo } from "@/lib/content";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [nav, seo] = await Promise.all([loadNav(), loadSeo()]);
 
