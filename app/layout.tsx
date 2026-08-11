@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { loadSeo } from "@/lib/content";
 import { pageMetadata, siteUrl } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 /* ── Typography: Display = geometric sans (Thai glyph, เท่แต่ไม่แข็ง) / Body = modern sans ── */
 const display = Kanit({
   subsets: ["thai", "latin"],
