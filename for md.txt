@@ -1,0 +1,172 @@
+เขียน .md prompt อย่างละเอียด สำหรับ การสร้างเว็ป Commission ที่ใช้ react , tailwind css และ ใช้ภาษาตามรูปมาทำด้วยได้ และ อื่นๆมาทำเว็ป ที่มีระแบบหลังบ้านในการ แก้ไขข้อมูลทุกๆส่วนของเว็ปได้ และ มีตัวอย่างให้ดูแบบ realtime เอาไว้ดูสำหรับตอนกำลังแก้ ซึ่งหน้าเว็ปหลัก หรือ หน้า home จะใช้ prompt นี้ในส่วนแรก แต่ปรับ ฟ้อน ให้เท่ขึ้น และ ปรับเนือหาให้เกี่ยวกับเว็ป Commission สำหรับ Mixing & Mastering (Add the "Hero 19" block from React Bits Pro to my project.
+
+Split billing hero with serif editorial headline, staggered invoice panel, and spring-damped parallax cards.
+
+Steps:
+
+1. Ensure my components.json has the React Bits Pro registries configured (see https://pro.reactbits.dev/docs/installation), including the Authorization header with my REACTBITS_LICENSE_KEY environment variable.
+
+2. Install the block with:
+
+   npx shadcn@latest add @reactbits-pro/hero-19
+
+3. Import it where needed and adapt it to my project's content and design tokens.
+
+Docs page for reference: https://pro.reactbits.dev/docs/blocks/hero-section/hero-19) และ ขอ nav bar แบบนี้ ปรับให้มีแค่ไม่กี่ปุ่ม ใน nav bar มีแค่ ปุ่ม home, about me , portforlio, pricing, contact (# Navigation 8
+
+Bottom nav with blurred background and image previews
+
+- Type: React Bits Pro block
+
+- Category: Navigation
+
+- Docs: https://pro.reactbits.dev/docs/blocks/navigation/navigation-8
+
+- Registry item: @reactbits-pro/navigation-8
+
+## Installation
+
+```bash
+
+npx shadcn@latest add @reactbits-pro/navigation-8
+
+```
+
+Requires a React Bits Pro license key and the @reactbits-pro registry configured in components.json. Setup guide: https://pro.reactbits.dev/docs/installation) โดยหน้า personal จะเป็นแบบนี้ (# Profile 5
+
+Spotlight creator card on an atmospheric dark panel with stats, tabbed link rows, and social actions.
+
+- Type: React Bits Pro block
+
+- Category: Profile
+
+- Docs: https://pro.reactbits.dev/docs/blocks/profile/profile-5
+
+- Registry item: @reactbits-pro/profile-5
+
+## Installation
+
+```bash
+
+npx shadcn@latest add @reactbits-pro/profile-5
+
+```
+
+Requires a React Bits Pro license key and the @reactbits-pro registry configured in components.json. Setup guide: https://pro.reactbits.dev/docs/installation) แต่ปรับให้ส่วนหน้าเว็ป about me ให้มีการเขียนข้อมูลเกี่ยวกับฉัน เขียนว่าใช้อุปกรณ์อะไรได้ เขียนว่าใช้โปรแกรม และ ปลั๊กอินอะไรได้ ต่อไปในหน้า portfolio อยากให้มีการโชว์หลากหลาย โดยเฉพาะ เว็ป portfolio ต้องเพิ่มผลงาน ลบผลงาน หรือ แก้ไขรายละเอียดผลงานได้ โดยหน้าตาเว็ปโครงจะเป็นประมาณนี้ และ สิ่งที่นำขึ้นโชว์จะเป็นการโชว์ลิงค์ youtube ให้เข้าไปชม โดยในหน้าเว็ปจะเป็นการโชว์ผลงานต่างๆ และ ทำการเชื่อมไปยังลิงค์ผลงานนั้นๆ (# Showcase 4
+
+Filterable project grid with category pills and animated layout transitions
+
+- Type: React Bits Pro block
+
+- Category: Showcase
+
+- Docs: https://pro.reactbits.dev/docs/blocks/showcase/showcase-4
+
+- Registry item: @reactbits-pro/showcase-4
+
+## Installation
+
+```bash
+
+npx shadcn@latest add @reactbits-pro/showcase-4
+
+```
+
+Requires a React Bits Pro license key and the @reactbits-pro registry configured in components.json. Setup guide: https://pro.reactbits.dev/docs/installation
+
+) แต่อยากให้มีหลายรูปแบบ เช่นนำ ส่วนผสมพวกนี้มา ผสมกัน (# Gradient Carousel
+
+3D card carousel with dynamic gradient background extraction
+
+- Type: React Bits Pro component
+
+- Category: UI & Cards
+
+- Docs: https://pro.reactbits.dev/docs/components/gradient-carousel
+
+- Registry item: @reactbits-starter/gradient-carousel-tw
+
+## Installation
+
+```bash
+
+npx shadcn@latest add @reactbits-starter/gradient-carousel-tw
+
+```
+
+Requires a React Bits Pro license key and the @reactbits-starter registry configured in components.json. Setup guide: https://pro.reactbits.dev/docs/installation), (import AccordionGallery from './AccordionGallery'
+
+const items = [
+
+  { image: 'https://picsum.photos/id/1015/900/1200', label: 'Canyon', link: '#' },
+
+  { image: 'https://picsum.photos/id/1018/900/1200', label: 'Ridgeline', link: '#' },
+
+  { image: 'https://picsum.photos/id/1039/900/1200', label: 'Falls', link: '#' },
+
+  { image: 'https://picsum.photos/id/1043/900/1200', label: 'Harbour', link: '#' },
+
+  { image: 'https://picsum.photos/id/1044/900/1200', label: 'Skyline', link: '#' }
+
+];
+
+<AccordionGallery
+
+  items={items}
+
+  defaultIndex={2}
+
+  expandRatio={0.52}
+
+  trigger="hover"
+
+/>) โดย card เหล่านี้สามารถ แสดงผลงานได้ด้วย , ต่อไปหน้า pricing จะทำหน้าเว็ปแบบนี้ โดยหน้านี้จะเป็นหน้าที่แค่่โชว์ ราคา และรายละเอียดต่างๆเฉยๆ ส่วนรายละเอียดตามรูปที่สอง (# Pricing 12
+
+Single-plan membership spotlight with an animated billing toggle and a dark inset panel.
+
+- Type: React Bits Pro block
+
+- Category: Pricing
+
+- Docs: https://pro.reactbits.dev/docs/blocks/pricing/pricing-12
+
+- Registry item: @reactbits-pro/pricing-12
+
+## Installation
+
+```bash
+
+npx shadcn@latest add @reactbits-pro/pricing-12
+
+```
+
+Requires a React Bits Pro license key and the @reactbits-pro registry configured in components.json. Setup guide: https://pro.reactbits.dev/docs/installation
+
+) ต่อไปหน้า contact จะทำแค่โชว์ช่องทางติดต่อ และ มีปุ่มสำหรับกดเพื่อไปลิงค์นั้นๆ โดยจะมีแค่ลิงค์ X[twitter] : https://x.com/ArmZChan00 , Discord : iar3z_ (# Contact 6
+
+Centered contact card with circular logo badge, heading, and dark CTA
+
+- Type: React Bits Pro block
+
+- Category: Contact
+
+- Docs: https://pro.reactbits.dev/docs/blocks/contact/contact-6
+
+- Registry item: @reactbits-pro/contact-6
+
+## Installation
+
+```bash
+
+npx shadcn@latest add @reactbits-pro/contact-6
+
+```
+
+Requires a React Bits Pro license key and the @reactbits-pro registry configured in components.json. Setup guide: https://pro.reactbits.dev/docs/installation
+
+) รายละเอียดหน้า contact อาจจะไม่ต้องมากมาย โดย ระบบนี้จะรันขึ้น vercel และมีการเชื่อม storage upstash redis เป็นได้ อยากให้ นำพวก markdown หรือ prompt หน้าเว็ปที่พิมพ์ไป เอาไปใส่ใน .md ที่จะสร้างเว็ปโดยรวมนี้ด้วย
+
+
+
+
+

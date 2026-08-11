@@ -1,0 +1,78 @@
+/* ── Content store: Upstash Redis REST (edge compatible) พร้อม in-memory fallback ──
+ * ถ้าไม่ตั้ง UPSTASH_REDIS_REST_URL / TOKEN จะใช้ Map ในหน่วยความจำ (เหมาะกับ dev)
+ * ทุกฟังก์ชันเป็น async และใช้ได้ทั้ง Edge Runtime และ Node runtime
+ */
+import { Redis } from "@upstash/redis";
+
+let client: Redis | null | undefined;
+
+function redis(): Redis | null {
+  if (client !== undefined) return client;
+  // รองรับทั้ง Upstash Redis และ Vercel KV (เป็น Upstash เหมือนกัน)
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+  client = url && token ? new Redis({ url, token }) : null;
+  if (!client && process.env.NODE_ENV !== "production") {
+    console.warn(
+      "[content-store] UPSTASH_REDIS_REST_URL/TOKEN ไม่ได้ตั้งค่า — ใช้ in-memory fallback (ข้อมูลจะหายเมื่อ restart)"
+    );
+  }
+  return client;
+}
+
+const memory = new Map<string, string>();
+
+export async function getRaw(key: string): Promise<string | null> {
+  const r = redis();
+  if (r) {
+    try {
+      return await r.get<string>(key);
+    } catch (e) {
+      console.error(`[content-store] Redis GET ${key} ล้มเหลว:`, e);
+      return null;
+    }
+  }
+  return memory.get(key) ?? null;
+}
+
+export async function setRaw(key: string, value: string): Promise<void> {
+  const r = redis();
+  if (r) {
+    try {
+      await r.set(key, value);
+      return;
+    } catch (e) {
+      console.error(`[content-store] Redis SET ${key} ล้มเหลว:`, e);
+      return;
+    }
+  }
+  memory.set(key, value);
+}
+
+export async function del(key: string): Promise<void> {
+  const r = redis();
+  if (r) {
+    try {
+      await r.del(key);
+      return;
+    } catch (e) {
+      console.error(`[content-store] Redis DEL ${key} ล้มเหลว:`, e);
+      return;
+    }
+  }
+  memory.delete(key);
+}
+
+export async function getJson<T>(key: string): Promise<T | null> {
+  const raw = await getRaw(key);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+export async function setJson(key: string, value: unknown): Promise<void> {
+  await setRaw(key, JSON.stringify(value));
+}
