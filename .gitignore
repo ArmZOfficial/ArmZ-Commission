@@ -27,6 +27,9 @@ yarn-error.log*
 .env.local
 .env*.local
 
+# dev-only content store backup (in-memory fallback เมื่อไม่มี Redis)
+.data/
+
 # vercel
 .vercel
 

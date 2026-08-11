@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
  * — หน้าเว็บอ่านข้อมูลจาก Redis ทุก request (force-dynamic) จึงต้องไม่ถูก cache
  * เพื่อให้ Admin บันทึกเนื้อหาแล้วเห็นผลทันทีบน Vercel
  */
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const res = NextResponse.next();
   res.headers.set("Cache-Control", "no-store, max-age=0");
   return res;

@@ -1,7 +1,14 @@
 /* ── Content store: Upstash Redis REST (edge compatible) พร้อม in-memory fallback ──
  * ถ้าไม่ตั้ง UPSTASH_REDIS_REST_URL / TOKEN จะใช้ Map ในหน่วยความจำ (เหมาะกับ dev)
  * ทุกฟังก์ชันเป็น async และใช้ได้ทั้ง Edge Runtime และ Node runtime
+ *
+ * หมายเหตุการทำงานใน dev (ไม่มี Redis):
+ * - Map เก็บไว้บน globalThis → route handler (หน้า Admin) และ server component
+ *   (หน้าเว็บ) แชร์ข้อมูลชุดเดียวกัน แก้ที่ Admin แล้วหน้าเว็บเห็นผลทันที
+ * - เก็บสำรองลงไฟล์ .data/store.json (dev เท่านั้น) → ข้อมูลไม่หายแม้รีสตาร์ทเซิร์ฟเวอร์
  */
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { Redis } from "@upstash/redis";
 
 let client: Redis | null | undefined;
@@ -22,7 +29,51 @@ function redis(): Redis | null {
   return client;
 }
 
-const memory = new Map<string, string>();
+/* ── in-memory fallback ────────────────────────────────────────────────
+ * ใช้ globalThis แทน module-level Map เพราะ Next.js (โดยเฉพาะ dev) bundle
+ * route handler กับ server component แยกกัน → module state ไม่แชร์กัน
+ * globalThis เป็นของ process เดียวกัน จึงแชร์ได้จริง และยังรอด HMR/recompile
+ */
+const GLOBAL_KEY = "__freebuff_content_store_v1__";
+
+function memoryStore(): Map<string, string> {
+  const g = globalThis as unknown as Record<string, Map<string, string> | undefined>;
+  let m = g[GLOBAL_KEY];
+  if (!m) {
+    m = new Map<string, string>();
+    g[GLOBAL_KEY] = m;
+  }
+  return m;
+}
+
+/* ไฟล์สำรองเฉพาะ dev — กันข้อมูลหายเมื่อรีสตาร์ท dev server
+ * (production ไม่มี fs ถาวร แต่ก็ไม่ถูกใช้เพราะ production บังคับ Redis)
+ */
+const DEV_FILE = path.join(process.cwd(), ".data", "store.json");
+
+async function loadDevFile(): Promise<void> {
+  if (redis()) return; // มี Redis จริง → ไม่ใช้ไฟล์
+  if (memoryStore().size > 0) return; // โหลดแล้ว
+  try {
+    const raw = await fs.readFile(DEV_FILE, "utf8");
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    for (const [k, v] of Object.entries(parsed)) {
+      memoryStore().set(k, v);
+    }
+  } catch {
+    // ยังไม่มีไฟล์ → เริ่มต้นว่าง (ครั้งแรกจะค่อยๆ seed)
+  }
+}
+
+async function persistDevFile(): Promise<void> {
+  if (redis()) return; // มี Redis จริง → ไม่ต้องเขียนไฟล์
+  try {
+    await fs.mkdir(path.dirname(DEV_FILE), { recursive: true });
+    await fs.writeFile(DEV_FILE, JSON.stringify(Object.fromEntries(memoryStore())), "utf8");
+  } catch (e) {
+    console.error("[content-store] เขียนไฟล์สำรอง .data/store.json ล้มเหลว:", e);
+  }
+}
 
 export async function getRaw(key: string): Promise<string | null> {
   const r = redis();
@@ -34,7 +85,8 @@ export async function getRaw(key: string): Promise<string | null> {
       return null;
     }
   }
-  return memory.get(key) ?? null;
+  await loadDevFile();
+  return memoryStore().get(key) ?? null;
 }
 
 /** บันทึกสำเร็จจริงไหม (false = Redis เขียนไม่ได้) — ใช้กับ API ที่ต้องรู้ผลเพื่อแจ้งผู้ใช้ */
@@ -49,7 +101,8 @@ export async function setRaw(key: string, value: string): Promise<boolean> {
       return false;
     }
   }
-  memory.set(key, value);
+  memoryStore().set(key, value);
+  await persistDevFile();
   return true;
 }
 
@@ -69,7 +122,8 @@ export async function del(key: string): Promise<void> {
       return;
     }
   }
-  memory.delete(key);
+  memoryStore().delete(key);
+  await persistDevFile();
 }
 
 export async function getJson<T>(key: string): Promise<T | null> {

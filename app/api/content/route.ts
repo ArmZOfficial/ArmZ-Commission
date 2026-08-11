@@ -14,13 +14,21 @@ async function isAuthed(req: NextRequest): Promise<boolean> {
   return verifySessionToken(req.cookies.get(SESSION_COOKIE)?.value);
 }
 
-/** GET /api/content — ดึง content ทั้งหมด (สำหรับ admin shell) */
+/** GET /api/content — ดึง content ทั้งหมด (สำหรับ admin shell) พร้อมสถานะการเชื่อมต่อ store */
 export async function GET(req: NextRequest) {
   if (!(await isAuthed(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const data = await loadAllContent();
-  return NextResponse.json(data);
+  const res = NextResponse.json({
+    content: data,
+    // ให้ Admin รู้ว่าบันทึกได้ถาวรไหม (Vercel ต้องเชื่อม Upstash ถึงจะเห็นผลข้าม instance)
+    redisConnected: isRedisConnected(),
+    production: process.env.NODE_ENV === "production",
+  });
+  // ห้าม cache อย่างเด็ดขาด — ไม่งั้น CDN/เบราว์เซอร์เสิร์ฟข้อมูลเก่าให้ Admin ดู
+  res.headers.set("Cache-Control", "no-store, max-age=0");
+  return res;
 }
 
 /** PUT /api/content { key, value } — บันทึก section หนึ่งลง Redis */

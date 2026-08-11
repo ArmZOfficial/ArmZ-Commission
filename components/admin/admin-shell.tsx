@@ -69,18 +69,43 @@ export function AdminShell() {
   const [showPreview, setShowPreview] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState("");
+  const [storeStatus, setStoreStatus] = useState<{
+    redisConnected: boolean;
+    production: boolean;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/content");
+        const res = await fetch("/api/content", { cache: "no-store" });
         if (res.status === 401) {
           router.replace("/admin/login");
           return;
         }
-        const data = (await res.json()) as Record<ContentKey, unknown>;
-        if (!cancelled) setDraft(data);
+        const payload = (await res.json()) as
+          | { content?: Record<ContentKey, unknown>; redisConnected?: boolean; production?: boolean }
+          | Record<ContentKey, unknown>;
+        if (!cancelled) {
+          if (
+            payload &&
+            typeof payload === "object" &&
+            "content" in payload &&
+            (payload as { content?: unknown }).content
+          ) {
+            const p = payload as {
+              content: Record<ContentKey, unknown>;
+              redisConnected?: boolean;
+              production?: boolean;
+            };
+            setDraft(p.content);
+            setStoreStatus({ redisConnected: !!p.redisConnected, production: !!p.production });
+          } else {
+            // backward compat: response เดิมที่คืน content ตรงๆ
+            setDraft(payload as Record<ContentKey, unknown>);
+            setStoreStatus(null);
+          }
+        }
       } catch {
         setStatus("โหลดข้อมูลไม่สำเร็จ");
       }
@@ -264,6 +289,26 @@ export function AdminShell() {
       <div className="flex min-w-0 flex-1">
         {/* forms */}
         <div className="min-w-0 flex-1 overflow-y-auto p-6">
+          {storeStatus?.production && !storeStatus.redisConnected && (
+            <div className="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm leading-relaxed text-red-100">
+              <strong>⚠ ยังไม่ได้เชื่อม Upstash Redis</strong> — การบันทึกบน Vercel จะไม่ถาวร (ข้อมูลอาจไม่ขึ้น / กลับเป็น
+              ของเดิม) ให้ไปที่{" "}
+              <span className="font-mono text-white/90">Vercel → Settings → Storage → Connect Upstash Redis</span> หรือตั้ง
+              env <span className="font-mono text-white/90">UPSTASH_REDIS_REST_URL</span> +{" "}
+              <span className="font-mono text-white/90">UPSTASH_REDIS_REST_TOKEN</span> แล้วกลับมาบันทึกใหม่
+            </div>
+          )}
+          {storeStatus?.production && storeStatus.redisConnected && (
+            <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              ✓ เชื่อมต่อ Upstash Redis แล้ว — บันทึกแล้วหน้าเว็บอัปเดตทันที
+            </div>
+          )}
+          {storeStatus && !storeStatus.production && (
+            <div className="mb-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/50">
+              โหมดพัฒนา: ข้อมูลเก็บในเครื่อง (ไฟล์ <span className="font-mono">.data/store.json</span>) — บน Vercel ต้องเชื่อม
+              Upstash Redis ถึงจะบันทึกถาวร
+            </div>
+          )}
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h1 className="font-display text-2xl font-semibold text-white">{active.label}</h1>
