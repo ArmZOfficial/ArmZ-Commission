@@ -6,6 +6,7 @@ import { ImageInput } from "@/components/admin/image-input";
 import { Field, TagInput, TextArea, TextInput, Toggle, inputCls } from "@/components/admin/ui";
 import { cn, uid } from "@/lib/utils";
 import type { PortfolioItem } from "@/lib/types";
+import { PORTFOLIO_CATEGORIES } from "@/lib/defaults";
 import { extractYouTubeId, resolveThumbnail, thumbnailFromUrl, thumbnailOnError } from "@/lib/youtube";
 import type { PlaylistResult, PlaylistVideo } from "@/lib/youtube-playlist";
 
@@ -321,11 +322,17 @@ export function PortfolioManager({
                 <TextInput value={editing.title} onChange={(v) => setEditing({ ...editing, title: v })} />
               </Field>
               <Field label="หมวดหมู่">
-                <TextInput
+                <select
                   value={editing.category}
-                  placeholder="K-Pop, J-Pop, Hip-Hop, Rock…"
-                  onChange={(v) => setEditing({ ...editing, category: v })}
-                />
+                  onChange={(e) => setEditing({ ...editing, category: e.target.value })}
+                  className={inputCls}
+                  style={{ colorScheme: "dark" }}
+                >
+                  <option value="" style={{ background: "#1a1a2e", color: "#fff" }}>-- เลือกหมวดหมู่ --</option>
+                  {PORTFOLIO_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat} style={{ background: "#1a1a2e", color: "#fff" }}>{cat}</option>
+                  ))}
+                </select>
               </Field>
             </div>
 

@@ -139,12 +139,19 @@ export function defaultAbout(): AboutContent {
   };
 }
 
+export const PORTFOLIO_CATEGORIES = [
+  "Solo Set",
+  "Duo Set",
+  "Group Set",
+  "Big Group Set",
+] as const;
+
 export function defaultPortfolio(): PortfolioItem[] {
   const base = [
     {
       id: "p1",
       title: "Uptown Funk (Mashup Mix)",
-      category: "K-Pop",
+      category: "Solo Set",
       youtubeUrl: "https://www.youtube.com/watch?v=OPf0YbXqDm0",
       thumbnail: "",
       description: "Mix & Master — ปรับสมดุลวงดนตรีสด + โวคอล เน้นความกลมกล่อมแบบ radio-ready",
@@ -154,7 +161,7 @@ export function defaultPortfolio(): PortfolioItem[] {
     {
       id: "p2",
       title: "Shape of You (Cover)",
-      category: "Cover",
+      category: "Duo Set",
       youtubeUrl: "https://www.youtube.com/watch?v=JGwWNGJdvx8",
       thumbnail: "",
       description: "Mix only — โวคอล + acoustic guitar ให้เสียงโปร่งเป็นธรรมชาติ",
@@ -164,7 +171,7 @@ export function defaultPortfolio(): PortfolioItem[] {
     {
       id: "p3",
       title: "Despacito (Latin Pop Mix)",
-      category: "K-Pop",
+      category: "Group Set",
       youtubeUrl: "https://www.youtube.com/watch?v=kJQP7kiw5Fk",
       thumbnail: "",
       description: "Mix & Master — งานจังหวะเยอะ เน้นความชัดของ low-end และการแยกสเตจ",
@@ -174,7 +181,7 @@ export function defaultPortfolio(): PortfolioItem[] {
     {
       id: "p5",
       title: "See You Again (Hip-Hop Ballad)",
-      category: "Hip-Hop",
+      category: "Big Group Set",
       youtubeUrl: "https://www.youtube.com/watch?v=RgKAFK5djSk",
       thumbnail: "",
       description: "Mix & Master — โฟกัสที่โวคอลให้ลอยอยู่หน้าบีตพร้อมความอบอุ่นของเปียโน",
@@ -184,7 +191,7 @@ export function defaultPortfolio(): PortfolioItem[] {
     {
       id: "p6",
       title: "Hello (Ballad Master)",
-      category: "Cover",
+      category: "Solo Set",
       youtubeUrl: "https://www.youtube.com/watch?v=YQHsXMglC9A",
       thumbnail: "",
       description: "Mastering only — รับงานมาสเตอร์ให้มิกซ์สำเร็จแล้ว ปรับให้ดังและใสตามมาตรฐาน",

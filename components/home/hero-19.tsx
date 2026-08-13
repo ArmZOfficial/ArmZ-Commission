@@ -152,54 +152,54 @@ export function Hero19({ content }: { content: HomeContent }) {
               animate={mounted ? { opacity: 1, y: 0, rotate: reduce ? 0 : 1.2 } : false}
               transition={{ duration: 0.9, delay: 0.25, ease }}
             >
-            <div className="relative mx-auto max-w-md rounded-[1.75rem] border border-frame-border bg-card p-6 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.5)]">
-              <div className="flex items-center justify-between border-b border-border pb-4">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
-                    {content.invoiceEyebrow || "Package Full Mixing"}
-                  </p>
-                  <p className="mt-1 font-display text-lg">{content.invoiceNote || "เริ่มต้นที่ ฿1,500"}</p>
-                </div>
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/12 text-accent">
-                  <Sparkles className="h-4 w-4" />
-                </span>
-              </div>
-
-              <motion.ul
-                initial={!mounted || reduce ? false : "hidden"}
-                animate={mounted ? "show" : false}
-                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.5 } } }}
-                className="mt-2"
-              >
-                {content.packages.map((p) => (
-                  <motion.li
-                    key={p.name}
-                    variants={{
-                      hidden: { opacity: 0, x: 18 },
-                      show: { opacity: 1, x: 0, transition: { duration: 0.5, ease } },
-                    }}
-                    className="group flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-muted"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold">{p.name}</p>
-                      <p className="text-xs text-muted-foreground">{p.note}</p>
-                    </div>
-                    <p className="font-display text-xl">
-                      <span className="text-xs text-muted-foreground">฿</span>
-                      {p.price}
+              <div className="relative mx-auto max-w-md rounded-[1.75rem] border border-frame-border bg-card p-6 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center justify-between border-b border-border pb-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">
+                      {content.invoiceEyebrow || "Package Full Mixing"}
                     </p>
-                  </motion.li>
-                ))}
-              </motion.ul>
+                    <p className="mt-1 font-display text-lg">{content.invoiceNote || "เริ่มต้นที่ ฿1,500"}</p>
+                  </div>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/12 text-accent">
+                    <Sparkles className="h-4 w-4" />
+                  </span>
+                </div>
 
-              <Link
-                href="/pricing"
-                className="mt-3 flex items-center justify-between rounded-xl border border-frame-border bg-muted px-4 py-3 text-sm font-semibold transition-colors hover:border-accent/60 hover:bg-card"
-              >
-                {content.invoiceCtaLabel || "ดูแพ็กเกจทั้งหมด"}
-                <ArrowRight className="h-4 w-4 text-accent" />
-              </Link>
-            </div>
+                <motion.ul
+                  initial={!mounted || reduce ? false : "hidden"}
+                  animate={mounted ? "show" : false}
+                  variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.5 } } }}
+                  className="mt-2"
+                >
+                  {content.packages.map((p) => (
+                    <motion.li
+                      key={p.name}
+                      variants={{
+                        hidden: { opacity: 0, x: 18 },
+                        show: { opacity: 1, x: 0, transition: { duration: 0.5, ease } },
+                      }}
+                      className="group flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-muted"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold">{p.name}</p>
+                        <p className="text-xs text-muted-foreground">{p.note}</p>
+                      </div>
+                      <p className="font-display text-xl">
+                        <span className="text-xs text-muted-foreground">฿</span>
+                        {p.price}
+                      </p>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+
+                <Link
+                  href="/pricing"
+                  className="mt-3 flex items-center justify-between rounded-xl border border-frame-border bg-muted px-4 py-3 text-sm font-semibold transition-colors hover:border-accent/60 hover:bg-card"
+                >
+                  {content.invoiceCtaLabel || "ดูแพ็กเกจทั้งหมด"}
+                  <ArrowRight className="h-4 w-4 text-accent" />
+                </Link>
+              </div>
             </motion.div>
           </motion.div>
         </div>

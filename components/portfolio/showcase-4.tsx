@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { ProjectCard } from "@/components/portfolio/projects-grid";
 import { Reveal } from "@/components/reveal";
 import type { PortfolioItem, PortfolioPageContent } from "@/lib/types";
+import { PORTFOLIO_CATEGORIES } from "@/lib/defaults";
 import { cn } from "@/lib/utils";
 
 /** Showcase 4 (adapted) — filterable grid + category pills + animated layout transition */
@@ -13,11 +14,9 @@ export function Showcase4({ items, content }: { items: PortfolioItem[]; content?
   const [category, setCategory] = useState("All");
 
   const categories = useMemo(() => {
-    const set = new Set<string>();
-    for (const item of items) {
-      if (item.category) set.add(item.category);
-    }
-    return ["All", ...Array.from(set)];
+    const existing = new Set(items.map((i) => i.category).filter(Boolean));
+    const ordered = PORTFOLIO_CATEGORIES.filter((c) => existing.has(c));
+    return ["All", ...ordered];
   }, [items]);
 
   const filtered = useMemo(() => {
