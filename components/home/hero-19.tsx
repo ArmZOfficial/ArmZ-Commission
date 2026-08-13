@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { HighlightCard, HomeContent } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +70,10 @@ function ParallaxCard({ card, index }: { card: HighlightCard; index: number }) {
 /** Hero 19 (adapted) — split billing hero สำหรับ Mixing & Mastering */
 export function Hero19({ content }: { content: HomeContent }) {
   const reduce = useReducedMotion();
+  // กัน hydration error: ระหว่าง SSR/รอบแรก client ยังไม่เล่น animation (initial=false)
+  // พอ mount เสร็จแล้วค่อยเปิด animation — motion ไม่ inline styles ของ variant initial ลง HTML
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const sectionRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -86,7 +90,11 @@ export function Hero19({ content }: { content: HomeContent }) {
       <div className="mx-auto max-w-6xl px-6 pt-16 lg:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[1.12fr_0.88fr]">
           {/* ── ซ้าย: editorial headline ── */}
-          <motion.div variants={container} initial={reduce ? false : "hidden"} animate="show">
+          <motion.div
+            variants={container}
+            initial={!mounted || reduce ? false : "hidden"}
+            animate={mounted ? "show" : false}
+          >
             <motion.span
               variants={fadeUp}
               className="inline-flex items-center gap-2 rounded-full border border-frame-border bg-card px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground"
@@ -140,8 +148,8 @@ export function Hero19({ content }: { content: HomeContent }) {
               (ไม่ให้ transform ขัดกันจนกระตุก) */}
           <motion.div style={{ y: reduce ? 0 : panelY }}>
             <motion.div
-              initial={reduce ? false : { opacity: 0, y: 40, rotate: 2 }}
-              animate={{ opacity: 1, y: 0, rotate: reduce ? 0 : 1.2 }}
+              initial={!mounted || reduce ? false : { opacity: 0, y: 40, rotate: 2 }}
+              animate={mounted ? { opacity: 1, y: 0, rotate: reduce ? 0 : 1.2 } : false}
               transition={{ duration: 0.9, delay: 0.25, ease }}
             >
             <div className="relative mx-auto max-w-md rounded-[1.75rem] border border-frame-border bg-card p-6 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.5)]">
@@ -158,8 +166,8 @@ export function Hero19({ content }: { content: HomeContent }) {
               </div>
 
               <motion.ul
-                initial={reduce ? false : "hidden"}
-                animate="show"
+                initial={!mounted || reduce ? false : "hidden"}
+                animate={mounted ? "show" : false}
                 variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.5 } } }}
                 className="mt-2"
               >

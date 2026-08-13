@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowDown, ArrowUp, GripVertical, Pencil, Plus, Star, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, GripVertical, ListVideo, Loader2, Pencil, Plus, Star, Trash2, X } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { ImageInput } from "@/components/admin/image-input";
-import { Field, TagInput, TextArea, TextInput, Toggle } from "@/components/admin/ui";
-import { uid } from "@/lib/utils";
+import { Field, TagInput, TextArea, TextInput, Toggle, inputCls } from "@/components/admin/ui";
+import { cn, uid } from "@/lib/utils";
 import type { PortfolioItem } from "@/lib/types";
-import { resolveThumbnail, thumbnailFromUrl } from "@/lib/youtube";
+import { extractYouTubeId, resolveThumbnail, thumbnailFromUrl, thumbnailOnError } from "@/lib/youtube";
+import type { PlaylistResult, PlaylistVideo } from "@/lib/youtube-playlist";
 
 function blankItem(order: number): PortfolioItem {
   return {
@@ -32,6 +33,7 @@ export function PortfolioManager({
   const [editing, setEditing] = useState<PortfolioItem | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [autoFill, setAutoFill] = useState(false);
+  const [tab, setTab] = useState<"list" | "import">("list");
   const dragIndex = useRef<number | null>(null);
 
   const sorted = [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -56,6 +58,35 @@ export function PortfolioManager({
       onChange([...items, { ...item, order: items.length }]);
     }
     setEditing(null);
+  };
+
+  /** นำเข้าจาก Playlist — เพิ่มคลิปที่เลือกเป็นผลงานใหม่ (ข้ามรายการที่ซ้ำ) */
+  const importFromPlaylist = (videos: PlaylistVideo[]): number => {
+    const existingIds = new Set<string>();
+    for (const i of items) {
+      existingIds.add(extractYouTubeId(i.youtubeUrl) ?? i.youtubeUrl);
+    }
+    const next = [...items];
+    let order = items.length;
+    let added = 0;
+    for (const v of videos) {
+      if (existingIds.has(v.videoId)) continue;
+      existingIds.add(v.videoId);
+      next.push({
+        id: uid("p"),
+        title: v.title,
+        category: "",
+        youtubeUrl: v.url,
+        thumbnail: v.thumbnail,
+        description: "",
+        tags: [],
+        featured: false,
+        order: order++,
+      });
+      added++;
+    }
+    if (added > 0) onChange(next);
+    return added;
   };
 
   /** วางลิงก์ YouTube → ดึง title/thumbnail อัตโนมัติ */
@@ -86,6 +117,32 @@ export function PortfolioManager({
 
   return (
     <div className="space-y-5">
+      {/* tabs: รายการผลงาน / นำเข้าจาก Playlist */}
+      <div className="flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+        {(
+          [
+            { id: "list", label: `รายการผลงาน (${items.length})` },
+            { id: "import", label: "นำเข้าจาก Playlist" },
+          ] as const
+        ).map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              tab === t.id ? "bg-accent text-accent-foreground" : "text-white/55 hover:text-white"
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "import" ? (
+        <PlaylistImportPanel onImport={importFromPlaylist} />
+      ) : (
+        <>
       {/* toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-white/50">
@@ -195,6 +252,9 @@ export function PortfolioManager({
           </p>
         )}
       </div>
+
+        </>
+      )}
 
       {/* confirm delete */}
       {confirmId && (
@@ -310,6 +370,174 @@ export function PortfolioManager({
             </div>
           </div>
         </Modal>
+      )}
+    </div>
+  );
+}
+
+/** แท็บนำเข้าจาก Playlist — วางลิงก์ → ดึงทุกคลิป → เลือก → เพิ่มเข้ารายการ */
+function PlaylistImportPanel({ onImport }: { onImport: (videos: PlaylistVideo[]) => number }) {
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<PlaylistResult | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [importedCount, setImportedCount] = useState<number | null>(null);
+
+  const fetchList = async () => {
+    if (!url.trim()) return;
+    setError("");
+    setImportedCount(null);
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/youtube/playlist?url=${encodeURIComponent(url.trim())}`);
+      const data = (await res.json().catch(() => null)) as (PlaylistResult & { error?: string }) | null;
+      if (!res.ok || !data || !data.videos) {
+        setError(data?.error || "ดึงข้อมูล Playlist ไม่สำเร็จ");
+        setResult(null);
+        return;
+      }
+      setResult(data);
+      setSelected(new Set(data.videos.map((v) => v.videoId)));
+    } catch {
+      setError("ดึงข้อมูล Playlist ไม่สำเร็จ — เช็คการเชื่อมต่อแล้วลองใหม่");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const allSelected = !!result && result.videos.length > 0 && selected.size === result.videos.length;
+
+  const toggleAll = () =>
+    setSelected(
+      allSelected ? new Set() : new Set(result?.videos.map((v) => v.videoId) ?? [])
+    );
+
+  const doImport = () => {
+    if (!result) return;
+    const count = onImport(result.videos.filter((v) => selected.has(v.videoId)));
+    setImportedCount(count);
+    if (count > 0) setSelected(new Set());
+  };
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+      <div>
+        <p className="text-sm font-semibold text-white/80">นำเข้าผลงานจาก Playlist YouTube</p>
+        <p className="mt-1 text-xs leading-relaxed text-white/40">
+          วางลิงก์ Playlist (เช่น{" "}
+          <span className="font-mono">youtube.com/playlist?list=PL…</span>) แล้วกด “ดึงข้อมูล” — ระบบจะดึงชื่อ +
+          รูปย่อของทุกคลิปใน Playlist มาให้เลือกเพิ่มเข้ารายการผลงาน
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && fetchList()}
+          placeholder="https://www.youtube.com/playlist?list=…"
+          className={inputCls}
+        />
+        <button
+          type="button"
+          onClick={fetchList}
+          disabled={loading || !url.trim()}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground transition-all hover:brightness-110 disabled:opacity-40"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              กำลังดึง…
+            </>
+          ) : (
+            <>
+              <ListVideo className="h-4 w-4" />
+              ดึงข้อมูล
+            </>
+          )}
+        </button>
+      </div>
+
+      {error && (
+        <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs leading-relaxed text-red-200">
+          {error}
+        </p>
+      )}
+
+      {importedCount !== null && (
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs leading-relaxed text-emerald-200">
+          {importedCount > 0
+            ? `เพิ่ม ${importedCount} รายการลงในรายการผลงานแล้ว — อย่าลืมกด “บันทึก” เพื่ออัปเดตหน้าเว็บ`
+            : "ไม่มีรายการใหม่ — คลิปเหล่านี้อยู่ในรายการผลงานอยู่แล้ว"}
+        </p>
+      )}
+
+      {result && (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-white/70">
+              <span className="font-semibold text-white">{result.playlistTitle}</span>
+              <span className="text-white/40"> — พบ {result.videos.length} คลิป</span>
+            </p>
+            <label className="flex cursor-pointer select-none items-center gap-2 text-xs text-white/60">
+              <input
+                type="checkbox"
+                checked={allSelected}
+                onChange={toggleAll}
+                className="h-3.5 w-3.5"
+                style={{ accentColor: "var(--accent)" }}
+              />
+              เลือกทั้งหมด
+            </label>
+          </div>
+
+          <div className="max-h-72 space-y-1.5 overflow-y-auto pr-1">
+            {result.videos.map((v) => (
+              <label
+                key={v.videoId}
+                className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-2.5 transition-colors hover:border-white/25"
+              >
+                <input
+                  type="checkbox"
+                  checked={selected.has(v.videoId)}
+                  onChange={() => toggle(v.videoId)}
+                  className="h-3.5 w-3.5 shrink-0"
+                  style={{ accentColor: "var(--accent)" }}
+                />
+                <img
+                  src={v.thumbnail}
+                  alt=""
+                  loading="lazy"
+                  onError={thumbnailOnError}
+                  className="h-10 w-16 shrink-0 rounded-md object-cover"
+                />
+                <span className="min-w-0 flex-1 truncate text-sm text-white/80">{v.title}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-3">
+            <p className="text-xs text-white/35">เลือกแล้ว {selected.size} รายการ</p>
+            <button
+              type="button"
+              onClick={doImport}
+              disabled={selected.size === 0}
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground transition-all hover:brightness-110 disabled:opacity-40"
+            >
+              <Plus className="h-4 w-4" />
+              เพิ่ม {selected.size} รายการ
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
